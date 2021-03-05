@@ -61,7 +61,6 @@ def msg_process(handle, type, admin_name, admin_pw):
                     msg = json.dumps({'cmd': 'login', 'status': 'SUCCESS', 'data':  token})
                     # 发送
                     handle.write(msg)
-                    # handle.write("登录成功")
                     print("登录成功")
                     print ("token: %s " % token)
     elif type == 'register':
