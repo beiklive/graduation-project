@@ -11,11 +11,13 @@ from tornado.options import define, options
 define("port", default=8765, help="运行端口", type=int)
 db = pymysql.connect(host='localhost',port=3306,user='root',passwd='root',db='BIGWORK',charset='utf8')
  
+#  执行sql语句
 def sql_execute(sql):
     cursor = db.cursor()
     cursor.execute(sql)
     return cursor.fetchone()
 
+# 生成token
 def token_set(admin_name):
     sql = "SELECT id FROM admin_table where name = \'" + admin_name + "\'"
     admin_id = sql_execute(sql)
@@ -39,7 +41,7 @@ def token_set(admin_name):
 # 处理接收到的信息
 def msg_process(handle, type, admin_name, admin_pw):
     if type == 'login':
-        sql = "SELECT name FROM admin_table where name = \'" + admin_name + "\'"
+        sql = ("SELECT name FROM admin_table where name = '%s'" % (admin_name))
         data = sql_execute(sql)
         if data == None:
             print("用户不存在")
@@ -52,6 +54,9 @@ def msg_process(handle, type, admin_name, admin_pw):
                 token = token_set(admin_name)
                 if token == None:
                     print("用户已登录")
+                    msg = json.dumps({'cmd': 'login', 'status': 'REPEAT', 'data':  'None'})
+                    # 发送
+                    handle.write(msg)
                 else:
                     msg = json.dumps({'cmd': 'login', 'status': 'SUCCESS', 'data':  token})
                     # 发送
